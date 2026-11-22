@@ -45,9 +45,28 @@ class Settings(BaseSettings):
     GOOGLE_CALENDAR_RETRY_MAX: int = 3  # Max retries for failed sync
     GOOGLE_CALENDAR_RETRY_DELAY: int = 300  # Seconds between retries (5 minutes)
 
+    # Phase 6: Email System (Resend API)
+    RESEND_API_KEY: str | None = None  # Resend API key (secret, never log)
+    EMAIL_FROM: str = "onboarding@resend.dev"  # Verified sender address
+    SALES_TEAM_EMAILS: str = ""  # Comma-separated list of sales team emails
+    EMAIL_TEST_MODE: bool = True  # Redirect customer emails to test recipients
+    EMAIL_TEST_RECIPIENTS: str = ""  # Comma-separated test emails (for EMAIL_TEST_MODE=true)
+    EMAIL_WORKER_ENABLED: bool = True  # Enable background email worker
+    EMAIL_WORKER_INTERVAL_SECONDS: int = 10  # How often worker checks for pending emails
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
+    @property
+    def sales_team_list(self) -> list[str]:
+        """Parse SALES_TEAM_EMAILS into list of email addresses"""
+        return [e.strip() for e in self.SALES_TEAM_EMAILS.split(",") if e.strip()]
+
+    @property
+    def email_test_recipients_list(self) -> list[str]:
+        """Parse EMAIL_TEST_RECIPIENTS into list of email addresses"""
+        return [e.strip() for e in self.EMAIL_TEST_RECIPIENTS.split(",") if e.strip()]
 
 
 settings = Settings()

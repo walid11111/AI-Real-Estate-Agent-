@@ -180,6 +180,76 @@ def get_conversation_history(
 
 
 # ============================================================================
+# MANUAL HANDOFF (PHASE 6)
+# ============================================================================
+
+@router.post("/handoff")
+def request_manual_handoff(
+    request: dict,
+    db: Session = Depends(get_db),
+):
+    """
+    Request manual handoff to human agent.
+
+    Args:
+        request: {"session_token": str, "reason": str | None}
+        db: Database session
+
+    Returns:
+        {"message": str, "handoff_id": int, "lead_id": int}
+
+    Raises:
+        401: Invalid session token
+        400: Conversation not active
+    """
+    # Validate session token
+    session_token = request.get("session_token")
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session token required",
+        )
+
+    # Get conversation by token
+    conversation = get_conversation_by_token(db, session_token)
+
+    if not conversation:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session token",
+        )
+
+    # Check conversation status
+    if conversation.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Conversation is {conversation.status}, cannot handoff",
+        )
+
+    # Request handoff
+    from app.services.handoff import request_handoff
+
+    result = request_handoff(
+        db=db,
+        conversation=conversation,
+        reason=request.get("reason"),
+        source="api",
+    )
+
+    if not result.success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Handoff failed: {result.error}",
+        )
+
+    return {
+        "message": result.message,
+        "handoff_id": result.handoff_id,
+        "lead_id": result.lead_id,
+    }
+
+
+# ============================================================================
 # HEALTH CHECK
 # ============================================================================
 

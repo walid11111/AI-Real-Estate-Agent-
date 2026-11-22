@@ -77,6 +77,9 @@ native_enum=False),
     # Timeline
     expected_timeline = Column(String, nullable=True)  # "within_1_month", "1-3_months", "3-6_months", "6+_months"
 
+    # AI-generated summary (Phase 6)
+    summary = Column(Text, nullable=True)  # Textual summary of lead for sales team
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -96,6 +99,9 @@ class LeadProperty(Base):
     property_id = Column(Integer, ForeignKey("properties.id", ondelete="CASCADE"), primary_key=True)
     viewed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     interested = Column(Integer, default=0, nullable=False)  # 0=viewed, 1=interested
+
+    # Relationships
+    property = relationship("Property")
 
 
 class LeadStatusHistory(Base):

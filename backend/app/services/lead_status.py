@@ -102,6 +102,26 @@ def update_lead_status(
     db.add(history)
 
     db.commit()
+
+    # Phase 6: Trigger notifications for QUALIFIED status
+    if new_status == LeadStatus.QUALIFIED:
+        try:
+            from app.services.notifications import queue_qualified_lead_email
+            from app.services.summary import build_summary, save_summary
+
+            # Generate and save AI summary
+            summary_text = build_summary(db, lead)
+            save_summary(db, lead, summary_text)
+
+            # Queue email to sales team
+            queue_qualified_lead_email(db, lead)
+
+        except Exception as e:
+            # Log error but don't fail status update
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to process qualified lead {lead_id}: {e}")
+
     return True
 
 

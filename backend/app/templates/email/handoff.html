@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Agent Handoff Required</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); padding: 32px 40px; border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Human Agent Required</h1>
+                            <p style="margin: 8px 0 0 0; color: #fef3c7; font-size: 14px;">Immediate attention needed for customer inquiry</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">Hi Team,</p>
+                            <p style="margin: 0 0 24px 0; color: #374151; font-size: 16px; line-height: 1.6;">Our AI agent has identified a customer inquiry that requires human expertise. Please follow up as soon as possible.</p>
+                            <div style="background-color: #fef2f2; border-left: 4px solid #dc2626; padding: 16px 20px; margin-bottom: 24px; border-radius: 4px;">
+                                <h3 style="margin: 0 0 8px 0; color: #991b1b; font-size: 14px; font-weight: 600;">HANDOFF REASON</h3>
+                                <p style="margin: 0; color: #991b1b; font-size: 14px; line-height: 1.6;">$reason</p>
+                            </div>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 24px;">
+                                        <h2 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">Customer Details</h2>
+                                        <p style="margin: 8px 0; color: #6b7280; font-size: 14px;"><strong>Name:</strong> $customer_name</p>
+                                        <p style="margin: 8px 0; color: #6b7280; font-size: 14px;"><strong>Email:</strong> $customer_email</p>
+                                        <p style="margin: 8px 0; color: #6b7280; font-size: 14px;"><strong>Phone:</strong> $customer_phone</p>
+                                        <p style="margin: 8px 0; color: #6b7280; font-size: 14px;"><strong>Lead ID:</strong> #$lead_id</p>
+                                        <p style="margin: 8px 0; color: #6b7280; font-size: 14px;"><strong>Lead Status:</strong> <span style="padding: 4px 12px; background-color: #ef4444; color: #ffffff; font-size: 12px; font-weight: 600; border-radius: 12px;">$lead_status</span></p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px 20px; margin-bottom: 24px; border-radius: 4px;">
+                                <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 14px; font-weight: 600;">CONVERSATION SUMMARY</h3>
+                                <div style="color: #78350f; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">$summary</div>
+                            </div>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="$admin_url" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 6px;">View Conversation & Contact Customer</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.6;">The customer has been informed that a sales consultant will contact them soon.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 24px 40px; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0; color: #9ca3af; font-size: 12px;">This is an automated notification from your AI Real Estate Agent.<br>Handoff requested at $timestamp</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

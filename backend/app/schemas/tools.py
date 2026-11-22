@@ -187,13 +187,16 @@ class BookViewingOutput(BaseModel):
 
 
 # ============================================================================
-# CUSTOMER HISTORY
+# CUSTOMER HISTORY (PHASE 6 ENHANCED)
 # ============================================================================
 
 class GetCustomerHistoryInput(BaseModel):
     """Input for get_customer_history tool"""
     customer_id: int | None = None
     conversation_id: int | None = None
+    phone: str | None = Field(None, description="Customer phone number")
+    email: str | None = Field(None, description="Customer email address")
+    whatsapp_id: str | None = Field(None, description="WhatsApp ID")
 
 
 class CustomerInteraction(BaseModel):
@@ -212,17 +215,20 @@ class GetCustomerHistoryOutput(BaseModel):
     total_properties_viewed: int
     interactions: list[CustomerInteraction]
     current_lead_status: str | None
+    appointments: list[dict] = Field(default_factory=list, description="List of viewing appointments")
+    lead_summary: str | None = Field(None, description="AI-generated lead summary")
 
 
 # ============================================================================
-# SALES NOTIFICATION (STUB)
+# SALES NOTIFICATION (PHASE 6 - HANDOFF)
 # ============================================================================
 
 class NotifySalesTeamInput(BaseModel):
-    """Input for notify_sales_team tool"""
-    lead_id: int
+    """Input for notify_sales_team tool (Phase 6: Human handoff)"""
+    lead_id: int | None = Field(None, description="Lead ID (optional - will be created if missing)")
+    conversation_id: int | None = Field(None, description="Conversation ID (auto-injected by system)")
     urgency: str = Field("normal", description="'low', 'normal', 'high', 'urgent'")
-    message: str | None = None
+    message: str = Field(..., description="Reason for handoff or context for human agent")
 
 
 class NotifySalesTeamOutput(BaseModel):
@@ -230,3 +236,5 @@ class NotifySalesTeamOutput(BaseModel):
     notification_sent: bool
     notified_agents: list[str]
     notification_id: str
+    handoff_id: int | None = None
+    lead_id: int | None = None

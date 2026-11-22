@@ -1,6 +1,6 @@
 """
-Get customer history tool.
-AI agent uses this to retrieve customer's past interactions and interests.
+Get customer history tool (Phase 6 enhanced).
+AI agent uses this to retrieve customer's past interactions, appointments, and lead summary.
 """
 
 from typing import Any
@@ -24,8 +24,9 @@ TOOL_DEFINITION = {
         "name": "get_customer_history",
         "description": (
             "Get customer's interaction history including past conversations, "
-            "viewed properties, and current lead status. "
-            "Use this to personalize responses or avoid repeating information."
+            "viewed properties, appointments, and lead summary. "
+            "Use this to personalize responses or avoid repeating information. "
+            "Can lookup by customer_id, conversation_id, phone, email, or whatsapp_id."
         ),
         "parameters": {
             "type": "object",
@@ -36,7 +37,19 @@ TOOL_DEFINITION = {
                 },
                 "conversation_id": {
                     "type": "integer",
-                    "description": "Current conversation ID (optional)",
+                    "description": "Current conversation ID (optional, auto-injected)",
+                },
+                "phone": {
+                    "type": "string",
+                    "description": "Customer phone number (optional)",
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Customer email (optional)",
+                },
+                "whatsapp_id": {
+                    "type": "string",
+                    "description": "WhatsApp ID (optional)",
                 },
             },
             "required": [],
@@ -56,18 +69,45 @@ def get_customer_history_tool(
     """
     Execute customer history retrieval.
 
+    Supports lookup by:
+    - customer_id
+    - conversation_id
+    - phone
+    - email
+    - whatsapp_id
+
     Args:
         db: Database session
-        params: Parameters from AI (customer_id or conversation_id)
+        params: Parameters from AI
 
     Returns:
-        GetCustomerHistoryOutput with interaction history
+        GetCustomerHistoryOutput with interaction history, appointments, and summary
     """
     # Validate input
     input_data = GetCustomerHistoryInput(**params)
 
     customer_id = input_data.customer_id
     conversation_id = input_data.conversation_id
+
+    # Try to find customer by alternative identifiers
+    customer = None
+    if not customer_id:
+        from app.models.customer import Customer
+
+        # Try phone
+        if input_data.phone:
+            customer = db.query(Customer).filter(Customer.phone == input_data.phone).first()
+
+        # Try email
+        if not customer and input_data.email:
+            customer = db.query(Customer).filter(Customer.email == input_data.email).first()
+
+        # Try whatsapp_id
+        if not customer and input_data.whatsapp_id:
+            customer = db.query(Customer).filter(Customer.whatsapp_id == input_data.whatsapp_id).first()
+
+        if customer:
+            customer_id = customer.id
 
     # Get lead if conversation_id provided
     lead = None
@@ -78,12 +118,15 @@ def get_customer_history_tool(
 
     # Build interactions list
     interactions = []
+    appointments = []
     total_conversations = 0
     total_properties_viewed = 0
     current_lead_status = None
+    lead_summary = None
 
     if lead:
         current_lead_status = lead.status.value
+        lead_summary = lead.summary  # Phase 6: Include AI summary
 
         # Get viewed properties
         viewed_property_ids = get_lead_viewed_properties(db, lead.id)
@@ -101,6 +144,19 @@ def get_customer_history_tool(
                     property_title=prop.title,
                     notes=None,
                 ))
+
+        # Phase 6: Get appointments
+        if hasattr(lead, "appointments") and lead.appointments:
+            for apt in lead.appointments:
+                appointment_dict = {
+                    "id": apt.id,
+                    "property_id": apt.property_id,
+                    "property_title": apt.property.title if apt.property else "Unknown",
+                    "start_time": apt.scheduled_at.isoformat() if apt.scheduled_at else None,
+                    "duration_minutes": apt.duration_minutes,
+                    "status": apt.status.value,
+                }
+                appointments.append(appointment_dict)
 
     # Get customer's other conversations if customer_id available
     if customer_id:
@@ -133,6 +189,8 @@ def get_customer_history_tool(
         total_properties_viewed=total_properties_viewed,
         interactions=interactions[:20],  # Return max 20 interactions
         current_lead_status=current_lead_status,
+        appointments=appointments,  # Phase 6: Include appointments
+        lead_summary=lead_summary,  # Phase 6: Include AI summary
     )
 
 

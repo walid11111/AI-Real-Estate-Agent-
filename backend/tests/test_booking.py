@@ -326,6 +326,73 @@ class TestAtomicTransaction:
                 assert appointment.sync_status == "failed"
                 assert "Google API error" in appointment.sync_error
 
+    def test_booking_queues_emails_phase_6(
+        self,
+        db_session: Session,
+        sample_lead: Lead,
+        sample_property: Property,
+        mock_google_calendar,
+    ):
+        """Test that booking queues 2 emails (sales + customer) - Phase 6."""
+        from app.models.email_outbox import EmailOutbox
+
+        slot_time = local_slot()
+
+        with patch("app.services.slots.get_calendar_service") as mock_slot_service:
+            mock_slot_service.return_value.is_available.return_value = False
+
+            # Check no emails before booking
+            emails_before = db_session.query(EmailOutbox).count()
+            assert emails_before == 0
+
+            # Book viewing
+            appointment = book_viewing(
+                db=db_session,
+                lead_id=sample_lead.id,
+                property_id=sample_property.id,
+                scheduled_at=slot_time,
+            )
+
+            assert appointment.id is not None
+
+            # Check 2 emails queued after booking (sales + customer)
+            emails_after = db_session.query(EmailOutbox).all()
+            assert len(emails_after) == 2
+
+            # Verify dedupe keys
+            dedupe_keys = [e.dedupe_key for e in emails_after]
+            assert f"viewing:{appointment.id}:sales" in dedupe_keys
+            assert f"viewing:{appointment.id}:customer" in dedupe_keys
+
+    def test_booking_succeeds_even_if_email_fails_phase_6(
+        self,
+        db_session: Session,
+        sample_lead: Lead,
+        sample_property: Property,
+        mock_google_calendar,
+    ):
+        """Test that booking succeeds even if email queueing fails - Phase 6."""
+        slot_time = local_slot()
+
+        # Mock email queueing to fail
+        with patch("app.services.notifications.queue_viewing_booked_emails") as mock_queue:
+            mock_queue.side_effect = Exception("Email queue failed")
+
+            with patch("app.services.slots.get_calendar_service") as mock_slot_service:
+                mock_slot_service.return_value.is_available.return_value = False
+
+                # Booking should still succeed (email failure logged but not raised)
+                appointment = book_viewing(
+                    db=db_session,
+                    lead_id=sample_lead.id,
+                    property_id=sample_property.id,
+                    scheduled_at=slot_time,
+                )
+
+                # Appointment saved successfully
+                assert appointment.id is not None
+                assert appointment.status == AppointmentStatus.SCHEDULED
+
 
 class TestLeadStatusProgression:
     """Test that lead status updates to VIEWING_SCHEDULED."""

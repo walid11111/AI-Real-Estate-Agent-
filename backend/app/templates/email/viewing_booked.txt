@@ -1,0 +1,37 @@
+PROPERTY VIEWING BOOKED
+=======================
+
+$greeting
+
+A property viewing appointment has been successfully scheduled.
+
+APPOINTMENT DETAILS
+-------------------
+Appointment ID: #$appointment_id
+Date & Time: $appointment_datetime
+Duration: $appointment_duration
+Status: $appointment_status
+
+PROPERTY INFORMATION
+--------------------
+$property_title
+Type: $property_type
+Location: $property_location
+Price: $property_price
+Bedrooms: $property_bedrooms | Bathrooms: $property_bathrooms | Size: $property_size
+
+CUSTOMER INFORMATION
+--------------------
+Name: $customer_name
+Email: $customer_email
+Phone: $customer_phone
+
+NOTE
+----
+$note_text
+
+$footer_text
+
+---
+This is an automated notification from your AI Real Estate Agent.
+Booking confirmed at $timestamp

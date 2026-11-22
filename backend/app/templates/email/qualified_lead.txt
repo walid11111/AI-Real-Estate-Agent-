@@ -1,0 +1,27 @@
+NEW QUALIFIED LEAD
+==================
+
+Hi Team,
+
+A new qualified lead has been identified by our AI agent. This prospect has shown strong interest and is ready for follow-up.
+
+LEAD DETAILS
+------------
+Lead ID: #$lead_id
+Customer: $customer_name
+Email: $customer_email
+Phone: $customer_phone
+Status: $lead_status
+
+AI SUMMARY
+----------
+$summary
+
+ACTION REQUIRED
+---------------
+View full lead details in the dashboard:
+$admin_url
+
+---
+This is an automated notification from your AI Real Estate Agent.
+Lead qualified at $timestamp

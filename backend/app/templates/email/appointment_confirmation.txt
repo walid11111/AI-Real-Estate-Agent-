@@ -1,0 +1,35 @@
+APPOINTMENT CONFIRMED!
+=====================
+
+Dear $customer_name,
+
+Great news! Your property viewing appointment has been confirmed. We're excited to show you this property.
+
+YOUR APPOINTMENT
+----------------
+Date & Time: $appointment_datetime
+Duration: $appointment_duration
+
+PROPERTY DETAILS
+----------------
+$property_title
+Type: $property_type
+Location: $property_location
+Price: $property_price
+Features: $property_bedrooms Bedrooms • $property_bathrooms Bathrooms • $property_size
+
+WHAT TO EXPECT
+--------------
+- Our agent will meet you at the property
+- Feel free to ask questions and take your time exploring
+- We'll provide all information about the property and next steps
+
+NEED TO RESCHEDULE?
+-------------------
+If you need to change or cancel this appointment, please contact us as soon as possible.
+
+We look forward to meeting you! If you have any questions before the viewing, feel free to reach out.
+
+---
+This is an automated confirmation from your AI Real Estate Agent.
+Booking confirmed at $timestamp

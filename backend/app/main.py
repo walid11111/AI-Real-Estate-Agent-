@@ -36,17 +36,52 @@ app.include_router(properties.router)
 app.include_router(chat.router)  # Phase 4: Chat API
 app.include_router(appointments.router)  # Phase 5: Appointments API
 
+# Phase 6: Email worker task
+email_worker_task = None
+
 
 # Startup event
 @app.on_event("startup")
 async def startup_event():
     """Run on application startup."""
+    global email_worker_task
+
     # Register all agent tools
     from app.agent.registry import register_all_tools
     register_all_tools()
 
     print("✅ AI Agent tools registered")
+
+    # Phase 6: Start email worker if enabled
+    if settings.EMAIL_WORKER_ENABLED:
+        import asyncio
+
+        from app.services.notifications import run_email_worker
+
+        email_worker_task = asyncio.create_task(run_email_worker())
+        print(f"✅ Email worker started (interval: {settings.EMAIL_WORKER_INTERVAL_SECONDS}s)")
+    else:
+        print("⚠️  Email worker disabled (EMAIL_WORKER_ENABLED=false)")
+
     print(f"✅ {settings.APP_NAME} started successfully")
+
+
+# Shutdown event
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Run on application shutdown."""
+    global email_worker_task
+
+    # Phase 6: Stop email worker
+    if email_worker_task:
+        email_worker_task.cancel()
+        try:
+            await email_worker_task
+        except Exception:
+            pass  # Task cancelled
+        print("✅ Email worker stopped")
+
+    print(f"✅ {settings.APP_NAME} shutdown complete")
 
 
 # Root endpoint
@@ -58,5 +93,5 @@ def read_root():
         "version": "1.0.0",
         "status": "running",
         "docs": "/docs",
-        "phase": "5 - Viewing Booking & Google Calendar",
+        "phase": "6 - Email Outbox + Summary + Handoff",
     }

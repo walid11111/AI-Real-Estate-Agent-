@@ -1,0 +1,33 @@
+HUMAN AGENT REQUIRED
+====================
+
+Hi Team,
+
+Our AI agent has identified a customer inquiry that requires human expertise. Please follow up as soon as possible.
+
+HANDOFF REASON
+--------------
+$reason
+
+CUSTOMER DETAILS
+----------------
+Name: $customer_name
+Email: $customer_email
+Phone: $customer_phone
+Lead ID: #$lead_id
+Lead Status: $lead_status
+
+CONVERSATION SUMMARY
+--------------------
+$summary
+
+ACTION REQUIRED
+---------------
+View conversation and contact customer:
+$admin_url
+
+IMPORTANT: The customer has been informed that a sales consultant will contact them soon.
+
+---
+This is an automated notification from your AI Real Estate Agent.
+Handoff requested at $timestamp

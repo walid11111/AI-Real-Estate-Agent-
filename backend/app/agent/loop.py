@@ -254,6 +254,11 @@ async def handle_tool_call(
         else:
             params = tool_call["arguments"]
 
+        # Phase 6: Inject conversation_id for tools that need it
+        if tool_name in ["notify_sales_team", "get_customer_history"]:
+            if "conversation_id" not in params:
+                params["conversation_id"] = conversation_id
+
         # Execute tool
         result = execute_tool(db, tool_name, params)
 
@@ -510,7 +515,8 @@ async def format_tool_result(tool_name: str, params: dict, result) -> AsyncGener
                 "reason": "Connecting you with our sales team for personalized assistance",
                 "urgency": params.get("urgency", "normal"),
                 "estimated_wait_time": "A team member will contact you within 1 hour",
-                "lead_id": params.get("lead_id"),
+                "lead_id": result.lead_id if result.lead_id is not None else params.get("lead_id"),
+                "handoff_id": result.handoff_id,
             }
         }
 

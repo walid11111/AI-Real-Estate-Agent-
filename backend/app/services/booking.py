@@ -8,6 +8,7 @@ Handles atomic appointment booking with:
 - Lead status progression to "Viewing Scheduled"
 """
 
+import logging
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
@@ -18,6 +19,8 @@ from app.models.lead import Lead, LeadStatus
 from app.models.property import Property
 from app.services.calendar_google import get_calendar_service
 from app.services.slots import SLOT_DURATION_MINUTES, check_slot_available
+
+logger = logging.getLogger(__name__)
 
 
 class BookingError(Exception):
@@ -129,7 +132,24 @@ def book_viewing(
     db.commit()
     db.refresh(appointment)
 
-    # 6. Try to create Google Calendar event (outside transaction)
+    # 6. Queue booking confirmation emails (Phase 6)
+    # Never blocks booking - errors logged but not raised
+    try:
+        from app.services.notifications import queue_viewing_booked_emails
+
+        sales_email, customer_email = queue_viewing_booked_emails(db, appointment)
+        if sales_email or customer_email:
+            logger.info(
+                f"Booking emails queued for appointment {appointment.id}: "
+                f"sales={bool(sales_email)}, customer={bool(customer_email)}"
+            )
+        else:
+            logger.warning(f"No booking emails queued for appointment {appointment.id}")
+    except Exception as e:
+        logger.error(f"Failed to queue booking emails for appointment {appointment.id}: {e}")
+        # Continue - booking already succeeded
+
+    # 7. Try to create Google Calendar event (outside transaction)
     _sync_appointment_to_google(db, appointment)
 
     return appointment
